@@ -14,9 +14,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
-          # We need full history if the build relies on git tags/describes for versioning
+          submodules: false
           fetch-depth: 0
+
+      - name: Checkout Submodules
+        run: |
+          git config --global url."https://github.com/BelledonneCommunications/".insteadOf "https://gitlab.linphone.org/BC/public/"
+          git submodule update --init external/linphone-sdk
+          git submodule update --init --recursive || echo "Some external submodules failed to clone due to GitLab being down. Continuing..."
 
       - name: Install Qt6
         uses: jurplel/install-qt-action@v4
@@ -46,7 +51,8 @@ jobs:
             -DENABLE_OPENH264=ON `
             -DENABLE_G729=ON `
             -DENABLE_PQCRYPTO=ON `
-            -DENABLE_GPL_THIRD_PARTIES=OFF
+            -DENABLE_GPL_THIRD_PARTIES=OFF `
+            -DENABLE_CRASH_HANDLER=OFF
 
       - name: Build
         run: |
