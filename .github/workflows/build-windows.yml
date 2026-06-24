@@ -1,0 +1,61 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          # We need full history if the build relies on git tags/describes for versioning
+          fetch-depth: 0
+
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.0' # Linphone requires >= 6.8.0
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          modules: 'qtmultimedia qtnetworkauth qtsvg qttools'
+
+      - name: Install Dependencies
+        run: |
+          choco install nasm yasm ninja --installargs 'ADD_CMAKE_TO_PATH=System' -y
+          pip install pystache six
+
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          # Configure CMake with MSVC, targeting x64.
+          # Packaging enabled to generate the NSIS executable installer.
+          cmake .. -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DENABLE_APP_PACKAGING=YES `
+            -DENABLE_VIDEO=ON `
+            -DENABLE_NON_FREE_CODECS=ON `
+            -DENABLE_OPENH264=ON `
+            -DENABLE_G729=ON `
+            -DENABLE_PQCRYPTO=ON `
+            -DENABLE_GPL_THIRD_PARTIES=OFF
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --parallel 4 --config RelWithDebInfo
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zlink-Windows-Installer
+          # The packaging process will put the installer in the OUTPUT/Packages folder
+          path: build/OUTPUT/Packages/*.exe
