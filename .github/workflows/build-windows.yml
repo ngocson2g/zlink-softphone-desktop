@@ -18,6 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout Submodules (Workaround for GitLab block)
+        shell: bash
         run: |
           # GitLab is blocking Azure/GitHub Actions IPs. 
           # We force Git to pull core linphone-sdk repos from GitHub mirrors.
