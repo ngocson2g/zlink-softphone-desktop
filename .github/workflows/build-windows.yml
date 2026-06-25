@@ -49,6 +49,7 @@ jobs:
         run: |
           choco install nasm yasm ninja doxygen.install --installargs 'ADD_CMAKE_TO_PATH=System' -y
           pip install pystache six
+          echo "C:\Program Files\doxygen\bin" >> $env:GITHUB_PATH
 
       - name: Configure CMake
         run: |
