@@ -43,7 +43,7 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2022_64'
-          modules: 'qtmultimedia qtnetworkauth qtsvg qttools'
+          modules: 'qtmultimedia qtnetworkauth'
 
       - name: Install Dependencies
         run: |
