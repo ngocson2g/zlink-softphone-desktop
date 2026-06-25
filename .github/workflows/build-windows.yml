@@ -45,9 +45,12 @@ jobs:
           arch: 'win64_msvc2022_64'
           modules: 'qtmultimedia qtnetworkauth'
 
+      - name: Setup NASM
+        uses: ilammy/setup-nasm@v1
+
       - name: Install Dependencies
         run: |
-          choco install nasm yasm ninja doxygen.install --installargs 'ADD_CMAKE_TO_PATH=System' -y
+          choco install yasm ninja doxygen.install --installargs 'ADD_CMAKE_TO_PATH=System' -y
           pip install pystache six
           echo "C:\Program Files\doxygen\bin" >> $env:GITHUB_PATH
 
