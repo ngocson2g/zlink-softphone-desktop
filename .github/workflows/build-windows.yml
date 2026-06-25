@@ -14,8 +14,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: false
           fetch-depth: 0
+
+      - name: Checkout Submodules (Workaround for GitLab block)
+        run: |
+          # GitLab is blocking Azure/GitHub Actions IPs. 
+          # We force Git to pull core linphone-sdk repos from GitHub mirrors.
+          git config --global url."https://github.com/BelledonneCommunications/".insteadOf "https://gitlab.linphone.org/BC/public/"
+          
+          # Set short timeout so git doesn't hang for 21 seconds per missing repo
+          git config --global http.lowSpeedLimit 1000
+          git config --global http.lowSpeedTime 5
+          
+          # Clone the main SDK which exists on GitHub
+          git submodule update --init external/linphone-sdk
+          
+          # Attempt to clone recursive submodules. 
+          # Libraries like aom, dav1d, codec2 don't exist on GitHub and will fail. 
+          # We ignore the error and let CMake handle the missing optional libraries.
+          git submodule update --init --recursive || echo "Some optional external submodules failed to clone. Continuing with core libraries..."
 
       - name: Install Qt6
         uses: jurplel/install-qt-action@v4
