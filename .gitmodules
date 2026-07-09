@@ -1,0 +1,6 @@
+[submodule "linphone-desktop"]
+	path = linphone-desktop
+	url = https://github.com/ngocson2g/linphone-desktop-test.git
+[submodule "external/linphone-sdk"]
+	path = external/linphone-sdk
+	url = https://github.com/BelledonneCommunications/linphone-sdk.git
